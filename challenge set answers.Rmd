@@ -1,0 +1,136 @@
+---
+title: "2022 Winter Data science challenge"
+author: "Khusanbek Mukhammad Azim"
+date: "12/09/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Question 1
+
+```{r,echo=FALSE,message=FALSE}
+library(tidyverse)
+```
+
+We first read in the data from the csv and check that we have all the columns.
+
+```{r}
+sneaker <- read_csv("2019_challenge_set.csv")
+```
+
+# (a)
+
+Lets take a look at our data.
+
+```{r}
+sneaker
+```
+
+Notice that for order id 4 and 5 come from the same shop based on the shop id. I suspect that the average of the order_amount column was taken without accounting for the fact that the same shop can have multiple order ids. 
+
+Let us check this assumption by calculating the average of the orders.
+
+```{r}
+mean(sneaker$order_amount)
+```
+
+Here we get that the average order value is $3145.13 as first assumed.
+
+# (b)
+
+We can group all shop purchases together and then take the median of all their purchases. Since a couple of the shops have large orders, which skews the average, taking the median or excluding the outliers and then taking the average would also work. 
+
+Below we see what the AOV for each shop is. 
+
+```{r}
+sneaker %>% 
+  group_by(shop_id) %>% 
+  summarize(shop_AOV = mean(order_amount)) -> shop_order
+
+shop_order
+```
+
+# (c)
+
+Next we find the median of the shop AOV to get to our answer.
+
+```{r}
+median(shop_order$shop_AOV)
+```
+
+The median order value is $308.89.
+
+
+```{r}
+mean(shop_order$shop_AOV[1:41]) + mean(shop_order$shop_AOV[43:77]) + mean(shop_order$shop_AOV[79:100])
+```
+
+Or if we instead exclude shop ids 42 and 78 and calculate the average we get a value of $902.49.
+
+
+## Question 2
+
+# (a)
+
+
+$\textbf{SELECT}$ ShipperID, count(*) from Orders
+
+$\textbf{GROUP BY}$ ShipperID
+
+
+```{r, echo=FALSE}
+library(knitr)
+img1_path <- 'F:/Desktop/2022 Winter Data science challenge set/q2_a.PNG'
+include_graphics(img1_path)
+```
+
+Speedy Express has Shipper ID of 1 shipped 54 orders.
+
+# (b)
+
+$\textbf{SELECT}$ OrderDetails.OrderID, OrderDetails.Quantity, Orders.OrderID, Orders.EmployeeID, Employees.EmployeeID, Employees.LastName
+
+$\textbf{FROM}$ OrderDetails $\textbf{JOIN}$ Orders
+
+$\textbf{ON}$ OrderDetails.OrderID = Orders.OrderID 
+
+$\textbf{JOIN}$ Employees 
+
+$\textbf{ON}$ Employees.EmployeeID = Orders.EmployeeID
+
+$\textbf{GROUP BY}$ LastName 
+
+$\textbf{ORDER BY}$ Quantity DESC
+
+
+```{r, echo=FALSE}
+library(knitr)
+img1_path <- 'F:/Desktop/2022 Winter Data science challenge set/q2_b.PNG'
+include_graphics(img1_path)
+```
+
+Davolio had the most orders.
+
+
+# (c)
+
+$\textbf{SELECT}$ Customers.Country, Products.ProductName
+
+$\textbf{FROM}$ Customers
+
+$\textbf{INNER JOIN}$ Orders $\textbf{ON}$ Customers.CustomerID = Orders.CustomerID
+	
+$\textbf{INNER JOIN}$ OrderDetails $\textbf{ON}$ Orders.OrderID = OrderDetails.OrderID
+  
+$\textbf{INNER JOIN}$ Products $\textbf{ON}$ OrderDetails.ProductID = Products.ProductID
+  
+$\textbf{GROUP BY}$ Country
+
+```{r, echo=FALSE}
+library(knitr)
+img1_path <- 'F:/Desktop/2022 Winter Data science challenge set/q2_c.PNG'
+include_graphics(img1_path)
+```
+
+The most ordered product by customers from Germany was Boston Crab Meat.
